@@ -8,6 +8,8 @@ Spence is an applicant tracking CLI built on EDSL humanize. It connects job post
 
 **Status: working 0.1 alpha.** The local workflow and EDSL client contracts are tested. A real hosted acceptance run is still required before using it with applicants. Hosted closure, access revocation, file sharing, and erasure have explicit limitations described in [provider contracts](docs/provider-contracts.md).
 
+**[Read the worked tutorial](https://expectedparrot.github.io/spence/)** — a complete walkthrough from a job post to an application, two reviewers, and a recorded decision. You can also open [docs/index.html](docs/index.html) locally.
+
 ## Install
 
 Python 3.11+ and Git are required. From this directory:

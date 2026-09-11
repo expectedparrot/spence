@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="A worked Spence tutorial: turn a job post into an application, collect human candidate reviews, and track a hiring decision with EDSL humanize.">
+<title>Expected Parrot | From job post to candidate review with Spence</title>
+<style>
+    :root{--ink:#18201b;--muted:#617068;--paper:#f5f7f5;--panel:#fff;--line:#dce5df;--green:#247b4b;--dark:#173f2b;--soft:#edf6f0;--gold:#d99a22;--gold-bg:#fff7df;--red:#a6453f;--red-bg:#fff1ef;--blue:#34769b;--code:#17221b;--sidebar:286px;--measure:790px;--serif:Georgia,"Times New Roman",serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;--mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.7 var(--sans)}#progress{position:fixed;z-index:30;inset:0 auto auto 0;width:0;height:4px;background:var(--gold)}
+    nav{position:fixed;inset:0 auto 0 0;width:var(--sidebar);overflow:auto;padding:28px 24px 42px;color:#eaf4ed;background:var(--dark)}nav .brand{display:block;margin-bottom:24px;padding:12px;color:var(--ink);background:#fff;border-radius:9px;text-decoration:none}.brand strong{display:block;font:700 21px/1.1 var(--serif)}.brand small{display:block;margin-top:5px;color:var(--green);font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}nav .title{margin:0 8px 23px;font:600 20px/1.3 var(--serif)}nav .part{margin:21px 8px 6px;color:#a8d7b9;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}nav>a:not(.brand){display:block;padding:5px 8px;color:#d7eadc;font-size:13px;text-decoration:none;border-radius:5px}nav>a:not(.brand):hover{color:#fff;background:#28603f}.nav-toggle{display:none;width:100%;margin-bottom:12px;padding:9px;border:1px solid #568067;border-radius:6px;color:#fff;background:transparent;text-align:left}
+    main{margin-left:var(--sidebar)}article{max-width:960px;min-height:100vh;margin:auto;padding:54px 60px 110px;background:var(--panel);box-shadow:0 0 0 1px rgba(0,0,0,.025)}header{padding:46px 0 50px;border-bottom:3px solid var(--green)}.eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}h1,h2,h3{font-family:var(--serif);line-height:1.25}h1{max-width:780px;margin:13px 0 18px;font-size:clamp(43px,7vw,68px);letter-spacing:-.035em}h2{margin:75px 0 22px;padding:10px 0;color:var(--green);font-size:32px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}h3{margin:36px 0 10px;font-size:22px}.dek{max-width:750px;margin:0;color:var(--muted);font:21px/1.5 var(--serif)}.meta{display:flex;flex-wrap:wrap;gap:9px 22px;margin-top:26px;color:var(--muted);font-size:13px}
+    p,ul,ol,pre,table,.callout,.post,details{max-width:var(--measure)}a{color:var(--green)}li::marker{color:var(--green)}code{padding:.14em .35em;background:#eef3ef;border-radius:4px;font:88% var(--mono)}pre{position:relative;overflow:auto;margin:18px 0 26px;padding:20px 58px 20px 22px;color:#deebe2;background:var(--code);border-left:4px solid var(--green);border-radius:8px;font:13px/1.58 var(--mono);white-space:pre-wrap}pre code{padding:0;color:inherit;background:none}.output{border-left-color:#7d9083;background:#26372c}.copy{position:absolute;top:10px;right:10px;padding:5px 8px;color:#d8ebe0;background:#344a3b;border:0;border-radius:5px;font:11px var(--sans);cursor:pointer}.copy:hover{background:var(--green)}.tok-program{color:#f3d37a;font-weight:750}.tok-command{color:#9ed7f5}.tok-option{color:#d9a7ee}.tok-value{color:#f2c6a0}
+    table{width:100%;margin:20px 0 28px;border-collapse:collapse;font-size:14px}th,td{padding:11px 13px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:#fff;background:var(--green);font-size:11px;letter-spacing:.06em;text-transform:uppercase}tbody tr:nth-child(even){background:#f7f9f7}.callout{margin:25px 0;padding:18px 21px;background:var(--soft);border-left:4px solid var(--green);border-radius:0 7px 7px 0}.callout.warning{background:var(--gold-bg);border-color:var(--gold)}.callout.danger{background:var(--red-bg);border-color:var(--red)}.callout p:first-child{margin-top:0}.callout p:last-child{margin-bottom:0}
+    .post{margin:22px 0;padding:25px 28px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 5px 20px rgba(24,50,34,.06)}.post.bad{border-top:5px solid var(--red)}.post.good{border-top:5px solid var(--green)}.post h3{margin:0 0 13px}.post p,.post ul{font-size:14px}details{margin:15px 0 25px}summary{color:var(--green);font-size:13px;font-weight:750;cursor:pointer}footer{margin-top:88px;padding-top:28px;color:var(--muted);border-top:3px solid var(--green);font-size:13px}
+    @media(max-width:900px){nav{position:static;width:auto;padding:20px 24px;border-bottom:1px solid #315c43}.nav-toggle{display:block}nav .part,nav>a:not(.brand),nav .title{display:none}nav.open .part,nav.open>a:not(.brand),nav.open .title{display:block}main{margin:0}article{padding:35px 25px 80px}}@media(max-width:600px){h2{font-size:28px}pre{padding-right:46px}table{display:block;overflow-x:auto}}@media print{nav,#progress,.copy{display:none!important}main{margin:0}article{max-width:none;padding:0}h2{break-before:page}pre{color:#000;background:#eee}}
+
+    .hero-art{display:block;width:100%;height:auto;margin:0 0 30px;border-radius:8px;border:1px solid var(--line)}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin:26px 0 0}.actions a{padding:9px 16px;border:1px solid var(--green);border-radius:6px;text-decoration:none;font-weight:650}.actions .primary{color:#fff;background:var(--green)}
+    .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;list-style:none;padding:0;margin:28px 0}.flow li{padding:15px;background:var(--soft);border:1px solid var(--line);border-radius:7px;font-size:13px}.flow strong{display:block;margin-bottom:5px;font-size:15px;color:var(--dark)}
+    .chapter{display:block;margin-bottom:8px;font:750 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+    .code-label{margin:20px 0 -12px;color:var(--muted);font-size:12px;font-weight:750}.code-label+pre{margin-top:16px}pre{white-space:pre;max-width:100%}pre code{display:block;min-width:0}section{scroll-margin-top:22px}nav a[aria-current="location"]{background:#28603f;color:#fff}
+    .skip-link{position:fixed;top:8px;left:8px;z-index:100;padding:10px;color:#fff;background:var(--dark);transform:translateY(-150%)}.skip-link:focus{transform:none}:focus-visible{outline:3px solid var(--gold);outline-offset:3px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 12px}.tabs button{padding:9px 14px;border:1px solid var(--green);border-radius:6px;color:var(--green);background:white;font:600 14px var(--sans);cursor:pointer}.tabs button[aria-pressed="true"]{background:var(--green);color:#fff}.view-panel{padding:18px 22px;border:1px solid var(--line);border-radius:7px;background:var(--soft)}.view-panel h3{margin-top:0}.view-panel p:last-child{margin-bottom:0}[hidden]{display:none!important}.table-wrap{overflow-x:auto}footer a{margin-right:12px}
+    @media(max-width:900px){nav .nav-links{display:none}nav.open .nav-links{display:block}nav .nav-links .part,nav .nav-links a{display:block}.nav-links a{padding:6px 8px;color:#d7eadc;text-decoration:none;font-size:13px}header{padding-top:12px}}
+    @media(min-width:901px){.nav-links a{display:block;padding:5px 8px;color:#d7eadc;font-size:13px;text-decoration:none;border-radius:5px}.nav-links a:hover{color:white;background:#28603f}}
+    @media(max-width:600px){.flow{grid-template-columns:1fr 1fr}article{padding-left:20px;padding-right:20px}pre{font-size:12px}h1{font-size:42px}.hero-art{margin-bottom:24px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}@media print{.actions,.tabs,.skip-link{display:none}.view-panel[hidden]{display:block!important}.hero-art{max-width:420px}pre{white-space:pre-wrap;overflow-wrap:anywhere}}
+</style>
+<noscript><style>.nav-links{display:block!important}.nav-links a,.nav-links .part{display:block!important}.view-panel[hidden]{display:block!important}.nav-toggle,.tabs{display:none!important}</style></noscript>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to tutorial</a>
+<div id="progress" aria-hidden="true"></div>
+<nav aria-label="Tutorial contents">
+<a class="brand" href="#top"><strong>Spence</strong><small>Expected Parrot applicant tracking</small></a>
+<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Show tutorial contents</button>
+<div class="title">From a job post to a considered decision</div>
+<div class="nav-links" id="nav-links">
+<div class="part">Start here</div>
+<a href="#orientation">01. The hiring loop</a>
+<a href="#install">02. Install and try the demo</a>
+<div class="part">Applications</div>
+<a href="#opening">03. Create an opening</a>
+<a href="#application-form">04. Design the application</a>
+<a href="#apply-link">05. Add an Apply link</a>
+<a href="#candidate">06. Receive an application</a>
+<div class="part">Human reviews</div>
+<a href="#reviewers">07. Prepare two reviewers</a>
+<a href="#feedback">08. Collect their feedback</a>
+<a href="#decision">09. Record the next step</a>
+<div class="part">Beyond the demo</div>
+<a href="#hosted">10. Use hosted humanize forms</a>
+<a href="#operations">11. Operate the workspace</a>
+</div></nav>
+<main id="content"><article id="top">
+<header>
+<img class="hero-art" src="assets/spence-artwork.png" width="1852" height="964" alt="Spence artwork featuring a peacock with its tail fanned inside brackets">
+<div class="eyebrow">Expected Parrot · Worked package tutorial</div>
+<h1>A job post is just<br>the beginning.</h1>
+<p class="dek">Turn an advertisement into an application. Give reviewers the right candidate materials. Keep the evidence behind each hiring decision.</p>
+<div class="meta"><span>Spence <strong>0.1 alpha</strong></span><span>Python <strong>3.11+</strong></span><span>EDSL <strong>GitHub main</strong></span></div>
+<div class="actions"><a class="primary" href="#install">Try the local workflow</a><a href="https://github.com/expectedparrot/spence">View the package on GitHub</a></div>
+</header>
+<div class="callout"><p><strong>A complete local example.</strong> We will hire a fictional Backend Engineer, receive Taylor’s application, and request feedback from Alex and Sam. The walkthrough uses the demo provider: it creates local records, sends no email, and makes no provider requests. Its <code>demo.invalid</code> links are intentionally not live forms.</p></div>
+
+<section id="orientation"><h2><span class="chapter">Chapter 01</span>The hiring loop</h2>
+<p>Spence organizes the employer’s side of hiring: openings, application versions, reviewers, stages, and decisions. EDSL humanize supplies the hosted forms applicants and reviewers fill out. <a href="https://github.com/expectedparrot/mccall">McCall</a> can help improve the job post before it enters this workflow.</p>
+<ol class="flow" aria-label="The four stages of the workflow"><li><strong>1. Advertise</strong>Attach a job post to an opening.</li><li><strong>2. Collect</strong>Publish a versioned application.</li><li><strong>3. Review</strong>Ask selected people for feedback.</li><li><strong>4. Decide</strong>Record a stage and a reason.</li></ol>
+<p>One opening can have several advertisements. An application belongs to a particular publication of one advertisement and form. Each reviewer assesses a saved application version, so an edited submission cannot silently change the evidence behind earlier feedback.</p>
+<h3>Who sees what?</h3><p>This illustration shows the default boundaries; the panels contain fictional material, not a running hosted form.</p>
+<div class="tabs" role="group" aria-label="Explore the three views"><button type="button" data-view="applicant-view" aria-pressed="true" aria-controls="applicant-view">Applicant</button><button type="button" data-view="reviewer-view" aria-pressed="false" aria-controls="reviewer-view">Reviewer</button><button type="button" data-view="operator-view" aria-pressed="false" aria-controls="operator-view">Hiring operator</button></div>
+<div class="view-panel" id="applicant-view"><h3>The job and the application</h3><p><strong>Backend Engineer</strong> — Build Python APIs for research tools.</p><p>Taylor supplies contact details, relevant experience, and motivation. Humanize hosts the form when using the Coop provider.</p></div>
+<div class="view-panel" id="reviewer-view" hidden><h3>A selected candidate packet</h3><p>Alex sees the public job post and Taylor’s selected experience and motivation answers, then completes the rubric.</p><p>Default packets exclude contact information, internal notes, attachments, and other reviewers’ opinions.</p></div>
+<div class="view-panel" id="operator-view" hidden><h3>The application and its history</h3><p>The operator can inspect contact details, stage changes, internal notes, delivery status, and attributed feedback.</p><p>This alpha uses a private filesystem workspace for a trusted team. It has no employer web dashboard or separate permissions for people sharing that workspace.</p></div>
+</section>
+<section id="install"><h2><span class="chapter">Chapter 02</span>Install and try the demo</h2>
+<p>Install Python 3.11 or newer, Git, and <code>uv</code>. Clone Spence and activate its environment. Run the tutorial commands in the same Bash or Zsh terminal so the saved IDs remain available.</p>
+<div class="code-label">Terminal</div><pre><code>git clone https://github.com/expectedparrot/spence.git
+cd spence
+uv venv .venv
+uv pip install --python .venv/bin/python -e &#x27;.[dev]&#x27;
+source .venv/bin/activate
+spence --version</code></pre>
+<p>The package installs EDSL from GitHub <code>main</code>. Publication definitions record the installed EDSL version and commit when available.</p><h3>The quick route</h3><p>From the repository directory, this script creates the entire example and prints the private report path. Choose a destination that does not already exist.</p>
+<div class="code-label">Terminal</div><pre><code>python examples/demo.py /tmp/spence-quickstart</code></pre>
+<p><a href="examples/candidate-report.html">Open the saved tutorial report →</a> This report comes from the fictional walkthrough below.</p><h3>The step-by-step route</h3><p>Continue below from the repository directory. The commands create a separate <code>hiring-demo</code> workspace beside the repository. If you already have that directory, choose another name in the next two commands.</p>
+</section>
+<section id="opening"><h2><span class="chapter">Chapter 03</span>Create an opening</h2>
+<p>Create the private workspace, a role brief, and the exact post applicants will read. The fixture files contain fictional data and stay inside the private directory.</p>
+<div class="code-label">Terminal</div><pre data-run="walkthrough"><code>cd ..
+spence init hiring-demo --provider demo --owner tutorial-operator
+cd hiring-demo
+mkdir .spence-private/fixtures
+
+cat &gt; .spence-private/fixtures/role.json &lt;&lt;&#x27;JSON&#x27;
+{
+  &quot;id&quot;: &quot;engineer&quot;,
+  &quot;title&quot;: &quot;Backend Engineer&quot;,
+  &quot;criteria&quot;: [&quot;Python API development&quot;, &quot;Reliable services&quot;, &quot;Clear communication&quot;]
+}
+JSON
+
+cat &gt; .spence-private/fixtures/post.md &lt;&lt;&#x27;POST&#x27;
+# Backend Engineer
+
+Help our fictional research team build useful tools.
+You will develop Python APIs, improve service reliability,
+and explain technical tradeoffs to researchers.
+
+Tell us about a service you built and why this work interests you.
+POST
+
+spence role import .spence-private/fixtures/role.json
+spence post import .spence-private/fixtures/post.md --id advert
+spence opening create --id backend --role engineer
+spence opening add-post backend --post advert</code></pre>
+<p>The opening is now a draft. A role captures what the team needs; a post is an advertisement for that opening. For an existing McCall export, the alternative import is <code>spence post import post.json --mccall-export</code>, which checks its content hash.</p>
+</section>
+<section id="application-form"><h2><span class="chapter">Chapter 04</span>Design the application</h2>
+<p>Design an EDSL Survey with the questions you want candidates to answer. The humanize schema sets requiredness, and the mapping tells Spence which answers are contact details and which may enter a review packet.</p><details><summary>Prefer a preset?</summary><p><code>spence application-form init --id engineering</code> provides these four standard questions. Use either the preset or the custom import below, since an ID can only be created once.</p></details>
+<div class="code-label">Terminal</div><pre data-run="walkthrough"><code>python - &lt;&lt;&#x27;PYTHON&#x27;
+import json
+from pathlib import Path
+from edsl import Survey, QuestionFreeText
+
+folder = Path(&quot;.spence-private/fixtures&quot;)
+survey = Survey([
+    QuestionFreeText(
+        question_name=&quot;candidate_name&quot;,
+        question_text=&quot;{{ job_post }}\n\nWhat is your name?&quot;,
+    ),
+    QuestionFreeText(question_name=&quot;candidate_email&quot;, question_text=&quot;What is your email?&quot;),
+    QuestionFreeText(question_name=&quot;experience&quot;, question_text=&quot;Describe a Python service you built.&quot;),
+    QuestionFreeText(question_name=&quot;motivation&quot;, question_text=&quot;Why does this role interest you?&quot;),
+])
+survey.git.save(folder / &quot;application.survey.ep&quot;, message=&quot;Tutorial application&quot;)
+schema = {&quot;questions&quot;: {name: {&quot;optional&quot;: False} for name in survey.question_names}}
+mapping = {
+    &quot;candidate_name&quot;: &quot;contact.name&quot;,
+    &quot;candidate_email&quot;: &quot;contact.email&quot;,
+    &quot;experience&quot;: &quot;profile.experience&quot;,
+    &quot;motivation&quot;: &quot;profile.motivation&quot;,
+}
+(folder / &quot;humanize.json&quot;).write_text(json.dumps(schema, indent=2))
+(folder / &quot;fields.json&quot;).write_text(json.dumps(mapping, indent=2))
+PYTHON
+
+spence application-form import --id engineering \
+  --survey .spence-private/fixtures/application.survey.ep \
+  --schema .spence-private/fixtures/humanize.json \
+  --mapping .spence-private/fixtures/fields.json
+spence application-form validate engineering
+spence application-form build engineering --opening backend --post advert \
+  --output .spence-private/application.jobs.ep</code></pre>
+<p>The resulting Jobs artifact contains the Survey and one scenario with the public job post. It contains no models. Spence later adds a reviewer AgentList only for named human recipients.</p><div class="callout"><p><strong>Designs are versioned.</strong> Use <code>--revise</code> to update a saved form. Already prepared publications keep their original form and post snapshots. Supported questions include free text, multiple choice, checkboxes, numerical, list, and file upload, with static answer constraints and answer-based skip rules.</p></div><p><code>application-form init --id with-resume --resume</code> adds an upload question. This alpha records provider file references, but hosted upload and access behavior still need verification. File fields cannot be included in reviewer packets yet.</p>
+</section>
+<section id="apply-link"><h2><span class="chapter">Chapter 05</span>Add an Apply link</h2>
+<p>Publish the prepared form and attach its Apply URL to an exported copy of the post. In this workspace, publication creates a local demo survey. The shell variable below reads the actual generated publication ID from Spence’s JSON output.</p>
+<div class="code-label">Terminal</div><pre data-run="walkthrough"><code>spence opening publish backend --post advert --form engineering \
+  &gt; .spence-private/publication.json
+cat .spence-private/publication.json
+publication_id=$(python -c &#x27;import json; print(json.load(open(&quot;.spence-private/publication.json&quot;))[&quot;publication&quot;][&quot;id&quot;])&#x27;)
+
+spence opening export-post backend --publication &quot;$publication_id&quot; \
+  --output post-with-apply.md
+cat post-with-apply.md</code></pre>
+<p>The exported Markdown ends with an Apply link under <code>https://demo.invalid/apply/…</code>. It is a demonstration artifact. With the Coop provider, the same command returns a hosted humanize URL you can place in your job advertisement.</p>
+</section>
+<section id="candidate"><h2><span class="chapter">Chapter 06</span>Receive an application</h2>
+<p>Taylor has built Python services and is interested in research tools. Submit those fictional answers through the demo provider, then synchronize the completed response into Spence.</p>
+<div class="code-label">Terminal</div><pre data-run="walkthrough"><code>cat &gt; .spence-private/fixtures/application.json &lt;&lt;&#x27;JSON&#x27;
+{
+  &quot;candidate_name&quot;: &quot;Taylor Example&quot;,
+  &quot;candidate_email&quot;: &quot;taylor@example.com&quot;,
+  &quot;experience&quot;: &quot;Built Python APIs and operated production services.&quot;,
+  &quot;motivation&quot;: &quot;I enjoy building useful tools for researchers.&quot;
+}
+JSON
+
+spence demo submit --publication &quot;$publication_id&quot; \
+  --answers .spence-private/fixtures/application.json
+spence applications sync --opening backend
+spence applications list --opening backend &gt; .spence-private/applications.json
+application_id=$(python -c &#x27;import json; print(json.load(open(&quot;.spence-private/applications.json&quot;))[&quot;records&quot;][0][&quot;id&quot;])&#x27;)
+spence application show &quot;$application_id&quot;
+spence application move &quot;$application_id&quot; --to screening \
+  --reason &#x27;Relevant experience merits a structured review.&#x27;
+spence applications sync --opening backend</code></pre>
+<p>The first synchronization creates one application. The second reports one unchanged response. Deduplication uses provider survey and response identities; an email match only flags a possible duplicate candidate.</p><p><code>application show</code> includes the submitted answers, contact details, and source information. A later response revision creates a new submission version while preserving the application’s stage. Missing or invalid answers go into quarantine.</p>
+</section>
+<section id="reviewers"><h2><span class="chapter">Chapter 07</span>Prepare two reviewers</h2>
+<p>Ask Alex and Sam to assess the same saved candidate packet. Import their fictional addresses, create a rubric, and explicitly select the application fields they will see.</p>
+<div class="code-label">Terminal</div><pre data-run="walkthrough"><code>cat &gt; .spence-private/fixtures/reviewers.json &lt;&lt;&#x27;JSON&#x27;
+[
+  {&quot;id&quot;: &quot;alex&quot;, &quot;name&quot;: &quot;Alex Reviewer&quot;, &quot;email&quot;: &quot;alex@example.com&quot;},
+  {&quot;id&quot;: &quot;sam&quot;, &quot;name&quot;: &quot;Sam Reviewer&quot;, &quot;email&quot;: &quot;sam@example.com&quot;}
+]
+JSON
+
+spence reviewer import .spence-private/fixtures/reviewers.json
+spence review-template init --id rubric
+spence review prepare &quot;$application_id&quot; --template rubric \
+  --reviewer alex --reviewer sam --field experience --field motivation \
+  &gt; .spence-private/batch.json
+batch_id=$(python -c &#x27;import json; print(json.load(open(&quot;.spence-private/batch.json&quot;))[&quot;batch&quot;][&quot;id&quot;])&#x27;)
+spence review inspect &quot;$batch_id&quot;</code></pre>
+<p>Inspect the packet and roster before publishing. Reviewers receive the public post, selected experience and motivation, and four questions: relationship to the candidate, strengths, concerns, and a recommended next step. The batch freezes the application version, template, and recipients.</p><p>To design your own feedback survey, use <code>review-template import --id rubric --survey review.ep --schema review-ui.json</code> instead of the preset. Review question text can refer to <code>{{ candidate_packet }}</code> and <code>{{ job_post }}</code>.</p>
+</section>
+<section id="feedback"><h2><span class="chapter">Chapter 08</span>Collect their feedback</h2>
+<p>Publishing obtains personal respondent links. Sending creates a delivery operation. In demo mode, delivery is simulated locally and no messages leave your machine.</p>
+<div class="code-label">Terminal</div><pre data-run="walkthrough"><code>spence review publish &quot;$batch_id&quot;
+spence review send &quot;$batch_id&quot; &gt; .spence-private/delivery.json
+operation_id=$(python -c &#x27;import json; print(json.load(open(&quot;.spence-private/delivery.json&quot;))[&quot;operation_id&quot;])&#x27;)
+spence operation delivery-status &quot;$operation_id&quot;
+spence reviews list --opening backend &gt; .spence-private/assignments.json
+assignment_id=$(python -c &#x27;import json; rows=json.load(open(&quot;.spence-private/assignments.json&quot;))[&quot;records&quot;]; print(next(row[&quot;id&quot;] for row in rows if row[&quot;reviewer_id&quot;] == &quot;alex&quot;))&#x27;)
+
+cat &gt; .spence-private/fixtures/review.json &lt;&lt;&#x27;JSON&#x27;
+{
+  &quot;relationship&quot;: &quot;Reviewing the submitted materials only.&quot;,
+  &quot;strengths&quot;: &quot;Relevant Python and operations experience.&quot;,
+  &quot;concerns&quot;: &quot;Discuss testing and collaboration in an interview.&quot;,
+  &quot;recommendation&quot;: &quot;advance&quot;
+}
+JSON
+
+spence demo submit --publication &quot;$batch_id&quot; --assignment &quot;$assignment_id&quot; \
+  --answers .spence-private/fixtures/review.json
+spence reviews sync --opening backend
+spence reviews list --opening backend</code></pre>
+<p>Alex has now submitted; Sam is still outstanding. Delivery status and review completion are separate records.</p><div class="table-wrap"><table><caption>Expected state after this step</caption><thead><tr><th scope="col">Reviewer</th><th scope="col">Demo delivery</th><th scope="col">Review state</th></tr></thead><tbody><tr><td>Alex</td><td>sent</td><td>submitted</td></tr><tr><td>Sam</td><td>sent</td><td>not_started</td></tr></tbody></table></div><p>Feedback is attributed through the saved provider respondent-to-assignment mapping. A response lacking that identity is quarantined rather than matched by name or row order.</p><details><summary>Personal links and reminders</summary><p><code>spence review links "$batch_id" --output .spence-private/reviewer-links.json</code> writes the personal links into a private file. Treat the links as access credentials. Repeated sends require <code>--remind</code>; once a batch contains a completed or revoked review, prepare a fresh batch for the remaining reviewers.</p></details>
+</section>
+<section id="decision"><h2><span class="chapter">Chapter 09</span>Record the next step</h2>
+<p>Record what you know and why you are moving the application forward. Here, the operator chooses to arrange an interview while acknowledging that Sam’s review is outstanding.</p>
+<div class="code-label">Terminal</div><pre data-run="walkthrough"><code>spence application note &quot;$application_id&quot; \
+  &#x27;Alex recommends an interview. Sam has not submitted a review yet.&#x27;
+spence application move &quot;$application_id&quot; --to interview \
+  --reason &#x27;Relevant experience and Alex’s feedback justify an interview; Sam’s review remains outstanding.&#x27;
+spence application report &quot;$application_id&quot; \
+  --output .spence-private/candidate-report.html
+spence backup --output .spence-private/tutorial-backup.sqlite3</code></pre>
+<p>Open <code>.spence-private/candidate-report.html</code> in a browser, or <a href="examples/candidate-report.html">view the saved result of this walkthrough</a>. It shows the application, attributed feedback, outstanding review, stage changes, and internal notes. It is a private employer report.</p><p>There is no automatic hiring score. Each stage change records a reason and the application version used as evidence. Reports flag reviewers who assessed an earlier version after an application changes.</p><div class="callout"><p><strong>You have completed the loop.</strong> The workspace now has one opening, one application in the interview stage, two review assignments, one completed review, a report, and a database backup. You can inspect it with <code>spence opening list</code>, <code>spence applications list</code>, and <code>spence reviews list</code>.</p></div>
+</section>
+<section id="hosted"><h2><span class="chapter">Chapter 10</span>Use hosted humanize forms</h2>
+<p>The local example demonstrates Spence’s behavior. A hosted workflow additionally depends on Expected Parrot authentication and the humanize service. Before using real applicant data, complete a controlled hosted acceptance run covering forms, identity, delivery, and access.</p><p>Create a <strong>separate</strong> Coop workspace using your normal Expected Parrot authentication. Do not relabel the demo workspace or reuse its fake survey IDs.</p>
+<div class="code-label">Hosted workspace setup · run outside the demo directory</div><pre><code>spence init hiring-live --provider coop --account my-team --owner hiring-operator
+cd hiring-live
+spence capabilities</code></pre>
+<p>Import the real role, advertisement, form, and intended reviewers. Then use the same <code>opening publish</code> and <code>opening export-post</code> commands to obtain the hosted Apply link. Applicants complete the form in their browser; the operator runs <code>applications sync</code> to import responses.</p><div class="callout warning"><p><strong>Sending now has an external effect.</strong> In a Coop workspace, <code>review send BATCH_ID</code> sends real email to the frozen reviewer roster. Inspect the packet and intended recipients before running it. The demo submission commands do not apply to hosted forms.</p></div><p>Spence 0.1 has tested local workflows and client contracts. Hosted acceptance, attachment authorization, intake closure, access revocation, and provider erasure remain release gates. <a href="https://github.com/expectedparrot/spence/blob/main/docs/provider-contracts.md">Read the provider contracts and outstanding tasks</a>.</p>
+</section>
+<section id="operations"><h2><span class="chapter">Chapter 11</span>Operate the workspace</h2>
+<h3>Recover without duplicate invitations</h3><p>A publication or send timeout can occur after the provider accepts the request. Spence records <code>pending</code> or <code>outcome_unknown</code> and blocks another attempt. Inspect <code>spence operation list</code>, then reconcile the recorded operation with the actual provider survey or delivery ID. Use <code>resolve-not-created</code> only after provider inspection establishes that nothing was created.</p>
+<h3>Keep uncertain responses visible</h3><p><code>spence quarantine list</code> shows incomplete or unattributable submissions. Export imports need an explicit publication and <code>--accept-revisions</code> for changed responses. Full live reads avoid treating survey start time as a completion cursor.</p>
+<h3>Know what a status means</h3><div class="table-wrap"><table><caption>Hosted controls in the current alpha</caption><thead><tr><th scope="col">Command</th><th scope="col">What is recorded</th><th scope="col">Current limitation</th></tr></thead><tbody><tr><td><code>opening close ID</code></td><td>A cutoff and a closing state</td><td>Coop intake closure is unverified; distributed links may still accept responses.</td></tr><tr><td><code>review revoke ID</code></td><td>Revocation pending for an assignment</td><td>Hosted link and file access are not claimed revoked.</td></tr><tr><td><code>application delete-request ID --reason '…'</code></td><td>A deletion worklist that blocks new processing</td><td>No copy is erased by this command.</td></tr></tbody></table></div>
+<h3>Protect the workspace</h3><p>Records, raw responses, and reviewer links live in <code>.spence-private/</code>. The directory is owner-only and excluded from Git. Generated private files use mode <code>0600</code>; the database is not encrypted. Exported reports remain sensitive wherever you save them.</p><p>The backup command copies SQLite only. Preserve the workspace configuration, private Jobs artifacts, and demo-provider state separately while Spence is stopped. Do not publish a real candidate report to your documentation site.</p>
+<div class="actions"><a href="https://github.com/expectedparrot/spence/blob/main/docs/operations.md">Read the operations guide</a><a href="https://github.com/expectedparrot/spence/blob/main/docs/architecture.md">Explore the architecture</a></div>
+</section>
+<footer><p>Expected Parrot · Spence 0.1 alpha · A worked tutorial using fictional data</p><a href="https://github.com/expectedparrot/spence">Source</a><a href="https://github.com/expectedparrot/spence/blob/main/LICENSE">MIT license</a><a href="https://github.com/expectedparrot/mccall">McCall</a><a href="#top">Back to top</a></footer>
+</article></main><div class="sr-only" id="copy-status" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  const nav = document.querySelector('nav');
+  const toggle = document.querySelector('.nav-toggle');
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.textContent = open ? 'Hide tutorial contents' : 'Show tutorial contents';
+  });
+  const progress = document.getElementById('progress');
+  const updateProgress = () => {
+    const length = document.documentElement.scrollHeight - innerHeight;
+    progress.style.width = (length > 0 ? Math.min(100, scrollY / length * 100) : 0) + '%';
+  };
+  addEventListener('scroll', updateProgress, {passive: true});
+  addEventListener('resize', updateProgress);
+  updateProgress();
+  document.querySelectorAll('pre').forEach((pre, index) => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'copy'; button.textContent = 'Copy';
+    button.setAttribute('aria-label', `Copy command block ${index + 1}`);
+    button.addEventListener('click', async () => {
+      const code = pre.querySelector('code');
+      try {
+        await navigator.clipboard.writeText(code.textContent);
+        button.textContent = 'Copied';
+        document.getElementById('copy-status').textContent = `Command block ${index + 1} copied.`;
+      } catch {
+        const range = document.createRange(); range.selectNodeContents(code);
+        const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range);
+        button.textContent = 'Selected';
+        document.getElementById('copy-status').textContent = 'Commands selected. Use your keyboard copy command.';
+      }
+      setTimeout(() => {button.textContent = 'Copy';}, 1800);
+    });
+    pre.append(button);
+  });
+  document.querySelectorAll('[data-view]').forEach(button => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('[data-view]').forEach(other => {
+        const active = other === button;
+        other.setAttribute('aria-pressed', String(active));
+        document.getElementById(other.dataset.view).hidden = !active;
+      });
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    const links = [...document.querySelectorAll('.nav-links a')];
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        links.forEach(link => {
+          if (link.hash === '#' + entry.target.id) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+      });
+    }, {rootMargin: '0px 0px -65% 0px'});
+    document.querySelectorAll('section[id]').forEach(section => observer.observe(section));
+  }
+})();
+</script>
+</body></html>
