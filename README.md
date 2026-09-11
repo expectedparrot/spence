@@ -1,5 +1,9 @@
 # Spence
 
+<p align="center">
+  <img src="docs/assets/spence-artwork.png" alt="Spence artwork featuring a peacock with its tail fanned inside brackets" width="640">
+</p>
+
 Spence is an applicant tracking CLI built on EDSL humanize. It connects job posts, hosted application forms, candidate records, and structured human reviews in one private workspace.
 
 **Status: working 0.1 alpha.** The local workflow and EDSL client contracts are tested. A real hosted acceptance run is still required before using it with applicants. Hosted closure, access revocation, file sharing, and erasure have explicit limitations described in [provider contracts](docs/provider-contracts.md).
