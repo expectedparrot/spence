@@ -1,0 +1,18 @@
+# Private operational records and credentials
+.spence-private/
+.env
+.env.*
+!.env.example
+
+# Python development artifacts
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+
+# Package build outputs
+/dist/
+/build/
+*.egg-info/
